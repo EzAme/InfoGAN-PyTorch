@@ -1,38 +1,44 @@
 import torch
-import torchvision.transforms as transforms
+import torchvision.transforms as T
 import torchvision.datasets as dsets
-
+from HandGestureDataset import HandGestureDataSet as HGD
+from pathlib import Path
 # Directory containing the data.
-root = 'data/'
+path = str(Path.home())+'/Documents/data/leapGestRecog/'
 
 def get_data(dataset, batch_size):
 
+
+
     # Get MNIST dataset.
     if dataset == 'MNIST':
-        transform = transforms.Compose([
-            transforms.Resize(28),
-            transforms.CenterCrop(28),
-            transforms.ToTensor()])
+        transform = T.Compose([
+                T.ToPILImage(),
+                T.CenterCrop(240),
+                T.Resize((28,28)),
+                T.ToTensor()])
 
-        dataset = dsets.MNIST(root+'mnist/', train='train', 
-                                download=True, transform=transform)
-
+        dataset = HGD(root = path,
+                    train= True, 
+                    transform=transform)
+        
     # Get SVHN dataset.
-    elif dataset == 'SVHN':
-        transform = transforms.Compose([
-            transforms.Resize(32),
-            transforms.CenterCrop(32),
-            transforms.ToTensor()])
+    if dataset == 'SVHN':
+        transform = T.Compose([
+                T.ToPILImage(),
+                T.CenterCrop(240),
+                T.Resize((32,32)),
+                T.ToTensor()])
 
-        dataset = dsets.SVHN(root+'svhn/', split='train', 
-                                download=True, transform=transform)
-
+        dataset = HGD(root = path,
+                    train= True, 
+                    transform=transform)
     # Get FashionMNIST dataset.
     elif dataset == 'FashionMNIST':
-        transform = transforms.Compose([
-            transforms.Resize(28),
-            transforms.CenterCrop(28),
-            transforms.ToTensor()])
+        transform = T.Compose([
+            T.Resize(28),
+            T.CenterCrop(28),
+            T.ToTensor()])
 
         dataset = dsets.FashionMNIST(root+'fashionmnist/', train='train', 
                                 download=True, transform=transform)
@@ -40,11 +46,11 @@ def get_data(dataset, batch_size):
     # Get CelebA dataset.
     # MUST ALREADY BE DOWNLOADED IN THE APPROPRIATE DIRECTOR DEFINED BY ROOT PATH!
     elif dataset == 'CelebA':
-        transform = transforms.Compose([
-            transforms.Resize(32),
-            transforms.CenterCrop(32),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5),
+        transform = T.Compose([
+            T.Resize(32),
+            T.CenterCrop(32),
+            T.ToTensor(),
+            T.Normalize((0.5, 0.5, 0.5),
                 (0.5, 0.5, 0.5))])
 
         dataset = dsets.ImageFolder(root=root+'celeba/', transform=transform)
@@ -52,6 +58,7 @@ def get_data(dataset, batch_size):
     # Create dataloader.
     dataloader = torch.utils.data.DataLoader(dataset, 
                                             batch_size=batch_size, 
-                                            shuffle=True)
+                                            shuffle=True,
+                                            num_workers = 8)
 
     return dataloader
