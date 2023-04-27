@@ -1,10 +1,11 @@
+import os
 import torch
 import torchvision.transforms as T
 import torchvision.datasets as dsets
 from HandGestureDataset import HandGestureDataSet as HGD
 from pathlib import Path
 # Directory containing the data.
-path = str(Path.home())+'/Documents/data/leapGestRecog/'
+path = "C:/Users/Krishanu/Desktop/Education/Programcodes/Python/DeepLearning/Project/leapGestRecog/"
 
 def get_data(dataset, batch_size):
 

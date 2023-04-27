@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from torch.utils.data import Dataset
 from torchvision.io import read_image
-
+os.environ['KMP_DUPLICATE_LIB_OK']="TRUE"
 
 # %%
 class HandGestureDataSet(Dataset):
@@ -26,14 +26,14 @@ class HandGestureDataSet(Dataset):
         df =pd.DataFrame(columns=['Class','Location'])
         basedir = self.root
         if self.train:
-            path = os.listdir(basedir)[:4]
+            path = os.listdir(basedir)[:8]
         else:
-            path = os.listdir(basedir)[4:]
+            path = os.listdir(basedir)[8:]
         for folder in path:
             for Class in os.listdir(basedir+folder+'/'):
                 for location in os.listdir(basedir+folder+'/'+Class+'/'):
-                    df = df.append({'Class':int(Class[:2])-1,'Location':basedir+folder+'/'+Class+'/'+location},ignore_index=True)
-        df = df.sample(frac = 1) 
+                    df = df._append({'Class':int(Class[:2])-1,'Location':basedir+folder+'/'+Class+'/'+location},ignore_index=True)
+        # df = df.sample(frac = 1) 
         return df
 
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     import torchvision.transforms as T
     import matplotlib.pyplot as plt
     from pathlib import Path
-    path = str(Path.home())+'/Documents/data/leapGestRecog/' #
+    path = "leapGestRecog/"
     train = HandGestureDataSet(root = path, train = True, 
         transform = torch.nn.Sequential(
                 T.RandomRotation(45),
@@ -61,3 +61,5 @@ if __name__ == "__main__":
 
 
 
+
+# %%
