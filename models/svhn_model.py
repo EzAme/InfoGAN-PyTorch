@@ -32,6 +32,23 @@ class Generator(nn.Module):
 
         return img
 
+
+class AE(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.decoder = nn.Sequential(
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(256, 128, 3,1,1),
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(128, 64, 5,1,2),  
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(64, 1, 7,1,3),
+        )
+    def forward(self,x):
+        return self.decoder(x)
+
 class Discriminator(nn.Module):
     def __init__(self):
         super().__init__()

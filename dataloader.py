@@ -11,9 +11,25 @@ def get_data(dataset, batch_size):
 
 
     # Get MNIST dataset.
+    if dataset == 'HGD':
+        transform = T.Compose([
+                T.ToPILImage(),
+                T.RandomAdjustSharpness(sharpness_factor = 4),
+                # T.RandomHorizontalFlip(p=0.5),
+                T.RandomRotation(10),
+                T.CenterCrop(240),
+                T.Resize((64,64)),
+                T.ToTensor()])
+
+        dataset = HGD(root = path,
+                    train= True, 
+                    transform=transform)
+        
     if dataset == 'MNIST':
         transform = T.Compose([
                 T.ToPILImage(),
+                T.RandomRotation(30),
+                T.RandomAdjustSharpness(sharpness_factor = 4),
                 T.CenterCrop(240),
                 T.Resize((28,28)),
                 T.ToTensor()])
@@ -26,6 +42,9 @@ def get_data(dataset, batch_size):
     if dataset == 'SVHN':
         transform = T.Compose([
                 T.ToPILImage(),
+                T.RandomAdjustSharpness(sharpness_factor = 4),
+                # T.RandomHorizontalFlip(p=0.5),
+                T.RandomRotation(10),
                 T.CenterCrop(240),
                 T.Resize((32,32)),
                 T.ToTensor()])
@@ -59,6 +78,7 @@ def get_data(dataset, batch_size):
     dataloader = torch.utils.data.DataLoader(dataset, 
                                             batch_size=batch_size, 
                                             shuffle=True,
+                                            drop_last = False,
                                             num_workers = 8)
 
     return dataloader
