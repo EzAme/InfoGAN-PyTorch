@@ -1,3 +1,4 @@
+from typing import Any
 import torch
 import torch.nn as nn
 import numpy as np
@@ -64,3 +65,10 @@ def noise_sample(n_dis_c, dis_c_dim, n_con_c, n_z, batch_size, device):
         noise = torch.cat((noise, con_c), dim=1)
 
     return noise, idx
+
+class HGDThreshold(object):
+    def __init__(self,threshold):
+        self.threshold = threshold
+    def __call__(self, sample):
+        nn.functional.threshold(sample,self.threshold,0,True)
+        return sample

@@ -1,5 +1,6 @@
 import torch
 import torchvision.transforms as T
+from utils import HGDThreshold as HGDT
 import torchvision.datasets as dsets
 from HandGestureDataset import HandGestureDataSet as HGD
 from pathlib import Path
@@ -14,12 +15,13 @@ def get_data(dataset, batch_size):
     if dataset == 'HGD':
         transform = T.Compose([
                 T.ToPILImage(),
-                T.RandomAdjustSharpness(sharpness_factor = 4),
+                # T.RandomAdjustSharpness(sharpness_factor = 4),
                 # T.RandomHorizontalFlip(p=0.5),
-                T.RandomRotation(10),
-                T.CenterCrop(240),
+                # T.RandomRotation(10),
+                T.CenterCrop((240,448)),
                 T.Resize((64,64)),
-                T.ToTensor()])
+                T.ToTensor(),
+                HGDT(50.0/255.0)])
 
         dataset = HGD(root = path,
                     train= True, 
