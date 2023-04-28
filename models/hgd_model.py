@@ -10,7 +10,7 @@ class Generator(nn.Module):
     def __init__(self):
         super().__init__()
         self.tconvu = nn.Upsample(scale_factor=2, mode='bilinear')
-        self.tconv1 = nn.ConvTranspose2d(212, 512, 2,1,bias=False)
+        self.tconv1 = nn.ConvTranspose2d(210, 512, 2,1,bias=False)
         self.bn1 = nn.BatchNorm2d(512)
 
         self.tconv2 = nn.ConvTranspose2d(512, 256, 4, 2, padding=1, bias=False)
@@ -40,7 +40,7 @@ class AE(nn.Module):
         super().__init__()
         self.decoder = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='nearest'),
-            nn.Conv2d(212, 128, 3,1,1),
+            nn.Conv2d(210, 128, 3,1,1),
             nn.ReLU(),
             nn.Upsample(scale_factor=2, mode='nearest'),
             nn.Conv2d(128, 64, 5,1,2),  
@@ -60,20 +60,20 @@ class Discriminator(nn.Module):
         self.conv2 = nn.Conv2d(128, 128, 4, 2, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(128)
 
-        self.conv3 = nn.Conv2d(128, 212, 4, 2, 1, bias=False)
-        self.bn3 = nn.BatchNorm2d(212)
+        self.conv3 = nn.Conv2d(128, 210, 4, 2, 1, bias=False)
+        self.bn3 = nn.BatchNorm2d(210)
 
     def forward(self, x):
         x = F.leaky_relu(self.conv1(x), 0.1, inplace=True)
         x = F.leaky_relu(self.bn2(self.conv2(x)), 0.1, inplace=True)
         x = F.leaky_relu(self.bn3(self.conv3(x)), 0.1, inplace=True)
-        return 
+        return x
 
 class DHead(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.conv = nn.Conv2d(212, 1, 8)
+        self.conv = nn.Conv2d(210, 1, 8)
 
     def forward(self, x):
         output = torch.sigmoid(self.conv(x))
@@ -84,12 +84,12 @@ class QHead(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(212, 128, 8, bias=False)
+        self.conv1 = nn.Conv2d(210, 128, 8, bias=False)
         self.bn1 = nn.BatchNorm2d(128)
 
         self.conv_disc = nn.Conv2d(128, 80, 1)
-        self.conv_mu = nn.Conv2d(128, 4, 1)
-        self.conv_var = nn.Conv2d(128, 4, 1)
+        self.conv_mu = nn.Conv2d(128, 2, 1)
+        self.conv_var = nn.Conv2d(128, 2, 1)
 
     def forward(self, x):
         x = F.leaky_relu(self.bn1(self.conv1(x)), 0.1, inplace=True)
