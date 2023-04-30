@@ -15,13 +15,19 @@ def get_data(dataset, batch_size):
     if dataset == 'HGD':
         transform = T.Compose([
                 T.ToPILImage(),
-                # T.RandomAdjustSharpness(sharpness_factor = 4),
+                T.ToTensor(), 
                 # T.RandomHorizontalFlip(p=0.5),
-                # T.RandomRotation(10),
-                T.CenterCrop((240,448)),
+                T.Resize((240,240)),
+                T.CenterCrop((180,160)),
                 T.Resize((64,64)),
-                T.ToTensor(),
-                HGDT(50.0/255.0)])
+                T.RandomRotation(10),
+                
+                HGDT(50.0/256.0),
+                # T.Normalize(100/256.0,1),
+                # T.RandomAdjustSharpness(sharpness_factor = 4,p=0.5),
+                # T.RandomAutocontrast(p=1),
+
+                ])
 
         dataset = HGD(root = path,
                     train= True, 
