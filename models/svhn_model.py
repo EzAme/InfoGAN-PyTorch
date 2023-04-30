@@ -13,8 +13,8 @@ class VAEncoder(nn.Module):
         self.relu = nn.ReLU()
         self.conv2 = nn.Conv2d(8,16,3,1)
         self.bn2 = nn.BatchNorm2d(16)
-        self.fc_mu = nn.Sequential(nn.Linear(57600,3136),nn.ReLU(),nn.Linear(3136,124))
-        self.fc_var = nn.Sequential(nn.Linear(57600,3136),nn.ReLU(),nn.Linear(3136,124))
+        self.fc_mu = nn.Sequential(nn.Linear(12544,3136),nn.ReLU(),nn.Linear(3136,124))
+        self.fc_var = nn.Sequential(nn.Linear(12544,3136),nn.ReLU(),nn.Linear(3136,124))
     def forward(self,x):
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.relu(self.bn2(self.conv2(x)))
@@ -40,13 +40,20 @@ class Generator(nn.Module):
         self.tconv5 = nn.ConvTranspose2d(64, 1, 4, 2, padding=1, bias=False)
     
     def forward(self, x):
+        print("-"*25)
+        print("Generator")
+        print(x.shape)
         x = F.leaky_relu(self.bn1(self.tconv1(x)))
+        print(x.shape)
         x = F.leaky_relu(self.bn2(self.tconv2(x)))
+        print(x.shape)
         x = F.leaky_relu(self.tconv3(x))
+        print(x.shape)
         x = F.leaky_relu(self.tconv4(x))
+        print(x.shape)
 
         img = torch.tanh(self.tconv5(x))
-
+        print(img.shape)
         return img
 
 class Discriminator(nn.Module):
