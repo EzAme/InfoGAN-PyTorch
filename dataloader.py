@@ -28,7 +28,7 @@ def get_data(dataset, batch_size):
         transform = T.Compose([
                 T.ToPILImage(),
                 T.CenterCrop(240),
-                T.Resize((32,32)),
+                T.Resize((64,64)),
                 T.ToTensor()])
 
         dataset = HGD(root = path,

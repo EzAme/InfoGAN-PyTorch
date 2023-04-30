@@ -5,6 +5,23 @@ import torch.nn.functional as F
 """
 Architecture based on InfoGAN paper.
 """
+class VAEncoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1,8,3,1)
+        self.bn1 =  nn.BatchNorm2d(8)
+        self.relu = nn.ReLU()
+        self.conv2 = nn.Conv2d(8,16,3,1)
+        self.bn2 = nn.BatchNorm2d(16)
+        self.fc_mu = nn.Sequential(nn.Linear(57600,3136),nn.ReLU(),nn.Linear(3136,124))
+        self.fc_var = nn.Sequential(nn.Linear(57600,3136),nn.ReLU(),nn.Linear(3136,124))
+    def forward(self,x):
+        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.relu(self.bn2(self.conv2(x)))
+        mu = self.fc_mu(torch.flatten(x,start_dim=1))
+        var =self.fc_var(torch.flatten(x,start_dim=1))
+        return mu,var
+
 
 class Generator(nn.Module):
     def __init__(self):
@@ -21,12 +38,12 @@ class Generator(nn.Module):
         self.tconv4 = nn.ConvTranspose2d(128, 64, 4, 2, padding=1, bias=False)
 
         self.tconv5 = nn.ConvTranspose2d(64, 1, 4, 2, padding=1, bias=False)
-
+    
     def forward(self, x):
-        x = F.relu(self.bn1(self.tconv1(x)))
-        x = F.relu(self.bn2(self.tconv2(x)))
-        x = F.relu(self.tconv3(x))
-        x = F.relu(self.tconv4(x))
+        x = F.leaky_relu(self.bn1(self.tconv1(x)))
+        x = F.leaky_relu(self.bn2(self.tconv2(x)))
+        x = F.leaky_relu(self.tconv3(x))
+        x = F.leaky_relu(self.tconv4(x))
 
         img = torch.tanh(self.tconv5(x))
 
