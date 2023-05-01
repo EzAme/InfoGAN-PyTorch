@@ -3,9 +3,11 @@ import torch
 import torchvision.transforms as T
 import torchvision.datasets as dsets
 from HandGestureDataset import HandGestureDataSet as HGD
+from utils import HGDThreshold as HGDT
+from utils import HGDThresholdW as HGDW
 from pathlib import Path
 # Directory containing the data.
-path = "C:/Users/Krishanu/Desktop/Education/Programcodes/Python/DeepLearning/Project/leapGestRecog/"
+path = str(Path.home())+'/Documents/data/leapGestRecog/'
 
 def get_data(dataset, batch_size):
 
@@ -15,12 +17,18 @@ def get_data(dataset, batch_size):
     if dataset == 'HGD':
         transform = T.Compose([
                 T.ToPILImage(),
+                
                 T.RandomAdjustSharpness(sharpness_factor = 4),
                 # T.RandomHorizontalFlip(p=0.5),
                 T.RandomRotation(10),
-                T.CenterCrop(240),
+                T.Resize((240,240)),
+                T.CenterCrop((180,180)),
                 T.Resize((64,64)),
-                T.ToTensor()])
+                T.ToTensor(),
+                HGDT(50.0/256),
+                HGDW(50/256)
+                # T.Normalize(25/256,1.2)
+                ])
 
         dataset = HGD(root = path,
                     train= True, 
