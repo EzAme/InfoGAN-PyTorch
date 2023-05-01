@@ -11,6 +11,7 @@ class Generator(nn.Module):
         super().__init__()
         self.noise_latent = nn.Linear(128,8192,bias=False) #reshape batch,128x8*8
         self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
+        self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
         self.cont_latent = nn.Linear(4,256,bias=False) # reshape to batchx4x8x8
         self.tconv1 = nn.ConvTranspose2d(133, 256, 4,2,1,bias=False)
     
@@ -24,7 +25,7 @@ class Generator(nn.Module):
 
     def forward(self, x,label,cont):
         
-        x = self.bn1(torch.cat((F.relu(self.noise_latent(x)).view(-1,128,8,8),self.label(label).view(-1,1,8,8),self.cont_latent(cont).view(-1,4,8,8)),1))
+        x = self.bn1(torch.cat((F.relu(self.noise_latent(x)).view(-1,128,8,8),self.label(self.Elabel(label)).view(-1,1,8,8),self.cont_latent(cont).view(-1,4,8,8)),1))
         # x = self.up1(x)
         x = F.relu(self.bn2(self.tconv1(x)))
         # x = self.up2(x)
@@ -55,7 +56,8 @@ class Discriminator(nn.Module):
         super().__init__()
         # self.noise_latent = nn.Linear(128,8192) #reshape batch,128x8*8
         self.label = nn.Linear(1,4096) # reshape to batchx1X64x64
-
+        # self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
+        self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
         self.conv1 = nn.Conv2d(2, 128, 3, 2, 1)
         # self.conv1_1 = nn.Conv2d(2, 128, 3, 2, 1)
         self.conv2 = nn.Conv2d(128, 256, 3, 2, 1,bias=False)
@@ -65,7 +67,7 @@ class Discriminator(nn.Module):
         self.bn3 = nn.BatchNorm2d(142)
 
     def forward(self, x,label):
-        x = torch.cat((x,self.label(label).view(-1,1,64,64)),1)
+        x = torch.cat((x,self.label(self.Elabel(label)).view(-1,1,64,64)),1)
         x = F.leaky_relu(self.conv1(x), 0.1, inplace=True)
         # x = F.leaky_relu(self.conv1_1(x), 0.1, inplace=True)
 

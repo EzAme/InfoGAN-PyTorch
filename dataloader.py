@@ -15,13 +15,13 @@ def get_data(dataset, batch_size):
     if dataset == 'HGD':
         transform = T.Compose([
                 T.ToPILImage(),
-                T.ToTensor(), 
+              
                 # T.RandomHorizontalFlip(p=0.5),
                 T.Resize((240,240)),
                 T.CenterCrop((180,160)),
                 T.Resize((64,64)),
                 T.RandomRotation(10),
-                
+                T.ToTensor(), 
                 HGDT(50.0/256.0),
                 # T.Normalize(100/256.0,1),
                 # T.RandomAdjustSharpness(sharpness_factor = 4,p=0.5),
