@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 
 """
 Architecture based on InfoGAN paper.
@@ -9,31 +10,36 @@ Architecture based on InfoGAN paper.
 class VAEncoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 32, 4, 2, 1)
+        self.label = nn.Linear(1,4096) # reshape to batchx1X64x64
+        # self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
+        self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
+        self.conv1 = nn.Conv2d(2, 128, 4, 2, 1)
+        # self.conv1_1 = nn.Conv2d(2, 128, 3, 2, 1)
+        self.conv2 = nn.Conv2d(128, 512, 4, 2, 1,bias=False)
+        self.bn2 = nn.BatchNorm2d(512)
 
-        self.conv2 = nn.Conv2d(32, 64, 4, 2, 1)
-
-        self.conv3 = nn.Conv2d(64, 128, 4, 2, 1, bias=False)
-        self.bn3 = nn.BatchNorm2d(128)
-
-        self.conv4 = nn.Conv2d(128, 256, 4, 2, 1, bias=False)
+        self.conv3 = nn.Conv2d(512, 256, 4, 2, 1,bias=False)
+        self.bn3 = nn.BatchNorm2d(256)
+        self.conv4 = nn.Conv2d(256, 256, 8,bias = False)
         self.bn4 = nn.BatchNorm2d(256)
 
-        self.conv5 = nn.Conv2d(256, 128, 4, bias=False)
-        self.bn5 = nn.BatchNorm2d(128)
+  
 
-        self.conv_mu = nn.Conv2d(128, 256, 1)
-        self.conv_var = nn.Conv2d(128, 256, 1)
+        self.conv_mu = nn.Conv2d(256, 256, 1)
+        self.conv_var = nn.Conv2d(256, 256, 1)
         self.relu = nn.LeakyReLU()
-    def forward(self,x):
+    def forward(self,x,label):
+        x = torch.cat((x,self.label(self.Elabel(label)).view(-1,1,64,64)),1)
         x = self.relu(self.conv1(x))
         x = self.relu(self.conv2(x))
         x = self.relu(self.bn3(self.conv3(x)))
         x = self.relu(self.bn4(self.conv4(x)))
-        x = self.relu(self.bn5(self.conv5(x)))
+
         mu = self.conv_mu(x)
-        var = self.conv_var(x)
-        return mu,var
+        var = torch.exp(self.conv_var(x))
+        epsilon = Variable(torch.randn_like(var.detach()))
+        z = mu + epsilon*torch.sqrt(var)
+        return z, mu, var
     
 
 class Generator(nn.Module):
@@ -90,12 +96,12 @@ class Discriminator(nn.Module):
         self.label = nn.Linear(1,4096) # reshape to batchx1X64x64
         # self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
         self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
-        self.conv1 = nn.Conv2d(2, 128, 3, 2, 1)
+        self.conv1 = nn.Conv2d(2, 128, 4, 2, 1)
         # self.conv1_1 = nn.Conv2d(2, 128, 3, 2, 1)
-        self.conv2 = nn.Conv2d(128, 256, 3, 2, 1,bias=False)
+        self.conv2 = nn.Conv2d(128, 256, 4, 2, 1,bias=False)
         self.bn2 = nn.BatchNorm2d(256)
 
-        self.conv3 = nn.Conv2d(256, 142, 3, 2, 1,bias=False)
+        self.conv3 = nn.Conv2d(256, 142, 4, 2, 1,bias=False)
         self.bn3 = nn.BatchNorm2d(142)
 
     def forward(self, x,label):
