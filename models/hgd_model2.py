@@ -60,12 +60,12 @@ class Discriminator(nn.Module):
         self.label = nn.Linear(1,4096) # reshape to batchx1X64x64
         # self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
         self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
-        self.conv1 = nn.Conv2d(2, 128, 5, 2, 2)
+        self.conv1 = nn.Conv2d(2, 128, 3, 2, 1)
         # self.conv1_1 = nn.Conv2d(2, 128, 3, 2, 1)
-        self.conv2 = nn.Conv2d(128, 256, 5, 2, 2,bias=False)
+        self.conv2 = nn.Conv2d(128, 256, 3, 2, 1,bias=False)
         self.bn2 = nn.BatchNorm2d(256)
 
-        self.conv3 = nn.Conv2d(256, 142, 5, 2, 2,bias=False)
+        self.conv3 = nn.Conv2d(256, 142, 3, 2, 1,bias=False)
         self.bn3 = nn.BatchNorm2d(142)
 
     def forward(self, x,label):
