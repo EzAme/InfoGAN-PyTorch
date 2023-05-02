@@ -35,7 +35,7 @@ class HandGestureDataSet(Dataset):
                 temp = 0
                 for location in os.listdir(basedir+folder+'/'+Class+'/'):
                     
-                    df = df.append({'Class':int(Class[:2])-1,'Location':basedir+folder+'/'+Class+'/'+location},ignore_index=True)
+                    df = df._append({'Class':int(Class[:2])-1,'Location':basedir+folder+'/'+Class+'/'+location},ignore_index=True)
 
         # df = df.sample(frac = 1) 
         return df
