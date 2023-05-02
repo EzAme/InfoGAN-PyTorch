@@ -10,10 +10,10 @@ Architecture based on InfoGAN paper.
 class VAEncoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.label = nn.Linear(1,4096) # reshape to batchx1X64x64
-        # self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
-        self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
-        self.conv1 = nn.Conv2d(2, 128, 4, 2, 1)
+        # self.label = nn.Linear(1,4096) # reshape to batchx1X64x64
+        # # self.label = nn.Linear(1,64,bias=False) # reshape to batchx1x8x8
+        # self.Elabel = nn.Embedding(10,1) # reshape to batchx1x8x8
+        self.conv1 = nn.Conv2d(1, 128, 4, 2, 1)
         # self.conv1_1 = nn.Conv2d(2, 128, 3, 2, 1)
         self.conv2 = nn.Conv2d(128, 512, 4, 2, 1,bias=False)
         self.bn2 = nn.BatchNorm2d(512)
@@ -28,8 +28,8 @@ class VAEncoder(nn.Module):
         self.conv_mu = nn.Conv2d(256, 256, 1)
         self.conv_var = nn.Conv2d(256, 256, 1)
         self.relu = nn.LeakyReLU()
-    def forward(self,x,label):
-        x = torch.cat((x,self.label(self.Elabel(label)).view(-1,1,64,64)),1)
+    def forward(self,x,label=0):
+        # x = torch.cat((x,self.label(self.Elabel(label)).view(-1,1,64,64)),1)
         x = self.relu(self.conv1(x))
         x = self.relu(self.conv2(x))
         x = self.relu(self.bn3(self.conv3(x)))
