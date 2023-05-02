@@ -39,7 +39,7 @@ class VAEncoder(nn.Module):
         var = torch.exp(self.conv_var(x))
         epsilon = Variable(torch.randn_like(var.detach()))
         z = mu + epsilon*torch.sqrt(var)
-        return z, mu, var
+        return z.view(-1,256), mu, var
     
 
 class Generator(nn.Module):
@@ -103,14 +103,16 @@ class Discriminator(nn.Module):
 
         self.conv3 = nn.Conv2d(256, 142, 4, 2, 1,bias=False)
         self.bn3 = nn.BatchNorm2d(142)
-
+        self.leaky_relu1 = nn.LeakyReLU(0.1,inplace=True)
+        self.leaky_relu2 = nn.LeakyReLU(0.1,inplace=True)
+        self.leaky_relu3 = nn.LeakyReLU(0.1,inplace=True)
     def forward(self, x,label):
         x = torch.cat((x,self.label(self.Elabel(label)).view(-1,1,64,64)),1)
-        x = F.leaky_relu(self.conv1(x), 0.1, inplace=True)
+        x = self.leaky_relu1(self.conv1(x))
         # x = F.leaky_relu(self.conv1_1(x), 0.1, inplace=True)
 
-        x = F.leaky_relu(self.bn2(self.conv2(x)), 0.1, inplace=True)
-        x = F.leaky_relu(self.bn3(self.conv3(x)), 0.1, inplace=True)
+        x = self.leaky_relu2(self.bn2(self.conv2(x)))
+        x = self.leaky_relu3(self.bn3(self.conv3(x)))
 
         return x
 
